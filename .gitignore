@@ -8,3 +8,13 @@
 /pytestemp
 __pycache__
 .DS_Store
+.cache/
+.venv/
+*_output.ipynb
+af3_output/
+af3_native_weights/
+af2_params/
+ALPHAFOLD3_READY*
+WEIGHTS_DONE*
+prefetch_*.py
+run_alphafold.py

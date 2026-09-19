@@ -1,0 +1,44 @@
+name: RGI
+
+on:
+  push:
+    branches: [rgi-integration]
+  pull_request:
+    branches: [main, rgi-integration]
+
+permissions:
+  contents: read
+
+jobs:
+  notebook-and-sampler:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install the pinned notebook runtime on CPU
+        run: |
+          uv venv --python 3.13
+          uv pip install --no-deps -e .
+          uv pip install 'git+https://github.com/cddlab/rgi_toolkit.git@9f4f2068035074c5e2a9ae506f386ef26a05d3ee' \
+            'jax==0.10.2' jaxopt pytest ruff 'dm-haiku==0.0.17' \
+            'tokamax==0.0.11' 'alphafold3-colabfold==3.1.11'
+      - name: Prepare chemical definitions without model weights
+        run: |
+          uv run --no-project python - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'scripts')
+          from rgi_e2e import prepare_runtime
+          work = Path('.cache/rgi-ci')
+          work.mkdir(parents=True, exist_ok=True)
+          prepare_runtime(work)
+          from alphafold3.model.network import diffusion_head
+          PY
+      - name: Check notebook and hook behavior
+        run: |
+          uv run --no-project ruff check --isolated --select E,F,I colabfold/rgi \
+            scripts/rgi_e2e.py scripts/rgi_batch_e2e.py scripts/rgi_boltz1_e2e.py \
+            tests/test_rgi_notebook.py tests/test_rgi_sampler.py
+          uv run --no-project python -m pytest tests/test_rgi_notebook.py tests/test_rgi_sampler.py -q
