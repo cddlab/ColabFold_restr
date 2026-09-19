@@ -1,10 +1,10 @@
 # ColabFold - v1.6.3
 
 **This branch adds optional RGI to the supported diffusion predictors.**
-Open [ColabFold2 with RGI](https://colab.research.google.com/github/th2ch-g/ColabFold/blob/rgi-integration/ColabFold2_preview.ipynb)
+Open [ColabFold2 with RGI](https://colab.research.google.com/github/th2ch-g/ColabFold_restr/blob/rgi-integration/ColabFold2_preview.ipynb)
 and follow the [beginner guide](docs/rgi.md). Enable `use_rgi` for guided prediction,
-or leave it off for vanilla. [AlphaFold3 / OpenFold3](https://colab.research.google.com/github/th2ch-g/ColabFold/blob/rgi-integration/AlphaFold3_of3.ipynb)
-and [Boltz-1](https://colab.research.google.com/github/th2ch-g/ColabFold/blob/rgi-integration/Boltz1.ipynb)
+or leave it off for vanilla. [AlphaFold3 / OpenFold3](https://colab.research.google.com/github/th2ch-g/ColabFold_restr/blob/rgi-integration/AlphaFold3_of3.ipynb)
+and [Boltz-1](https://colab.research.google.com/github/th2ch-g/ColabFold_restr/blob/rgi-integration/Boltz1.ipynb)
 also expose the same restraint presets.
 
 For details of what was changed in v1.6.3, see [change log](https://github.com/sokrypton/ColabFold/wiki/v1.6.3)!
@@ -16,7 +16,7 @@ For details of what was changed in v1.6.3, see [change log](https://github.com/s
 | Notebooks                                                                                                                                        | monomers | complexes | mmseqs2 | jackhmmer | templates |
 | :----------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------- | ------- | --------- | --------- |
 | [AlphaFold2_mmseqs2](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/AlphaFold2.ipynb)                                    | Yes      | Yes       | Yes     | No        | Yes       |
-| [AlphaFold3 (OpenFold3)](https://colab.research.google.com/github/th2ch-g/ColabFold/blob/rgi-integration/AlphaFold3_of3.ipynb)                            | Yes      | Yes       | Yes     | No        | No        |
+| [AlphaFold3 (OpenFold3)](https://colab.research.google.com/github/th2ch-g/ColabFold_restr/blob/rgi-integration/AlphaFold3_of3.ipynb)                            | Yes      | Yes       | Yes     | No        | No        |
 | [AlphaFold2_batch](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/batch/AlphaFold2_batch.ipynb)                          | Yes      | Yes       | Yes     | No        | Yes       |
 | [AlphaFold2](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb) (from Deepmind)                    | Yes      | Yes       | No      | Yes       | No        |
 | [relax_amber](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/beta/relax_amber.ipynb) (relax input structure)             |          |           |         |           |           |
@@ -24,7 +24,7 @@ For details of what was changed in v1.6.3, see [change log](https://github.com/s
 |                                                                                                                                                  |
 | **BETA (in development) notebooks**                                                                                                              |          |           |         |           |           |
 | [RoseTTAFold2](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/RoseTTAFold2.ipynb)                                        | Yes      | Yes       | Yes     | No        | WIP       |
-| [Boltz](https://colab.research.google.com/github/th2ch-g/ColabFold/blob/rgi-integration/Boltz1.ipynb)                                        | Yes      | Yes       | Yes     | No        | No       |
+| [Boltz](https://colab.research.google.com/github/th2ch-g/ColabFold_restr/blob/rgi-integration/Boltz1.ipynb)                                        | Yes      | Yes       | Yes     | No        | No       |
 | [BioEmu](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/BioEmu.ipynb)                                        | Yes      | No       | Yes     | No        | No       |
 | [OmegaFold](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/beta/omegafold.ipynb)                                         | Yes      | Maybe     | No      | No        | No        |
 | [AlphaFold2_advanced_v2](https://colab.research.google.com/github/sokrypton/ColabDesign/blob/gamma/af/examples/predict.ipynb) (new experimental notebook)                  | Yes      | Yes       | Yes     | No        | Yes       |

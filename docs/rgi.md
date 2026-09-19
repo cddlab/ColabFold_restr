@@ -1,14 +1,14 @@
 # RGI in ColabFold
 
-Open [ColabFold2 preview](https://colab.research.google.com/github/th2ch-g/ColabFold/blob/rgi-integration/ColabFold2_preview.ipynb),
+Open [ColabFold2 preview](https://colab.research.google.com/github/th2ch-g/ColabFold_restr/blob/rgi-integration/ColabFold2_preview.ipynb),
 choose a model and a GPU runtime, enter your molecules, and run the cells in order.
 Set **use_rgi** to enable restraints. Leave it **off** for vanilla prediction.
 
 | Notebook | RGI models |
 | --- | --- |
 | ColabFold2 preview | AlphaFold3, OpenFold3, Boltz2, Protenix2, RoseTTAFold3, Chai1, OpenDDE, ESMFold2, ESMFold2 LM600M and LM300M |
-| [AlphaFold3 / OpenFold3](https://colab.research.google.com/github/th2ch-g/ColabFold/blob/rgi-integration/AlphaFold3_of3.ipynb) | AlphaFold3 and OpenFold3, using the same maintained runtime |
-| [Boltz-1](https://colab.research.google.com/github/th2ch-g/ColabFold/blob/rgi-integration/Boltz1.ipynb) | Native Boltz-1, using the existing RGI predictor fork |
+| [AlphaFold3 / OpenFold3](https://colab.research.google.com/github/th2ch-g/ColabFold_restr/blob/rgi-integration/AlphaFold3_of3.ipynb) | AlphaFold3 and OpenFold3, using the same maintained runtime |
+| [Boltz-1](https://colab.research.google.com/github/th2ch-g/ColabFold_restr/blob/rgi-integration/Boltz1.ipynb) | Native Boltz-1, using the existing RGI predictor fork |
 
 OpenBind0, IntelliFold2 and AlphaFold2 remain available as vanilla models in preview.
 Enabling RGI for them raises an actionable error. ESMFold2's language-model input
