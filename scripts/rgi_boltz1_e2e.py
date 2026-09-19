@@ -24,7 +24,15 @@ def run(args):
             None
             if arm == "vanilla"
             else make_config(
-                "distance", selection1="chain A", selection2="chain B", distance=25
+                {
+                    "distance_restraints_config": [
+                        {
+                            "atom_selection1": "chain A",
+                            "atom_selection2": "chain B",
+                            "harmonic": {"target_distance": 25},
+                        }
+                    ]
+                }
             )
         )
         data = notebook_input(entries, config=config, single_sequence=True)

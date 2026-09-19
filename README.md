@@ -5,7 +5,8 @@ Open [ColabFold2 with RGI](https://colab.research.google.com/github/th2ch-g/Cola
 and follow the [beginner guide](docs/rgi.md). Enable `use_rgi` for guided prediction,
 or leave it off for vanilla. [AlphaFold3 / OpenFold3](https://colab.research.google.com/github/th2ch-g/ColabFold_restr/blob/rgi-integration/AlphaFold3_of3.ipynb)
 and [Boltz-1](https://colab.research.google.com/github/th2ch-g/ColabFold_restr/blob/rgi-integration/Boltz1.ipynb)
-also expose the same restraint presets.
+also use RGI-toolkit's editor for multiple distance, conformer, angle, custom and
+RMSD restraints, with native selections and full YAML/JSON configuration support.
 
 For details of what was changed in v1.6.3, see [change log](https://github.com/sokrypton/ColabFold/wiki/v1.6.3)!
 

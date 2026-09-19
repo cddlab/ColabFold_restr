@@ -125,20 +125,24 @@ def run(args):
                 )
             if arm != "vanilla":
                 target = 25.0 if arm == "rgi" else 35.0
-                raw["restraints_config"] = make_config(
-                    "distance+ligand_geometry"
-                    if args.fixture == "combined"
-                    else "distance",
-                    selection1="chain A and resid 1 to 9"
-                    if model.startswith("esmfold2")
-                    else "chain A",
-                    selection2="chain A and resid 10 to 18"
-                    if model.startswith("esmfold2")
-                    else "chain B",
-                    distance=target,
-                )
+                config = {
+                    "verbose": True,
+                    "distance_restraints_config": [
+                        {
+                            "atom_selection1": "chain A and resid 1 to 9"
+                            if model.startswith("esmfold2")
+                            else "chain A",
+                            "atom_selection2": "chain A and resid 10 to 18"
+                            if model.startswith("esmfold2")
+                            else "chain B",
+                            "harmonic": {"target_distance": target},
+                        }
+                    ],
+                }
                 if args.fixture == "combined":
+                    config["conformer_restraints_config"] = {"plane": {"weight": 1.0}}
                     raw["sequences"][-1]["ligand"]["conformer_restraints"] = True
+                raw["restraints_config"] = make_config(config)
             path = work / f"{name}.json"
             path.write_text(json.dumps(raw, indent=2) + "\n")
             out = work / "outputs"

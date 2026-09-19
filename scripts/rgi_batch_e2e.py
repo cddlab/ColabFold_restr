@@ -56,7 +56,15 @@ def run(work):
             }
         elif target is not None:
             data["restraints_config"] = make_config(
-                "distance", selection1="chain A", selection2="chain B", distance=target
+                {
+                    "distance_restraints_config": [
+                        {
+                            "atom_selection1": "chain A",
+                            "atom_selection2": "chain B",
+                            "harmonic": {"target_distance": target},
+                        }
+                    ]
+                }
             )
         (inputs / f"{name}.json").write_text(json.dumps(data, indent=2))
     os.environ.setdefault("XLA_FLAGS", "--xla_gpu_enable_triton_gemm=false")

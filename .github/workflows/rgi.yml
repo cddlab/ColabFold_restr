@@ -21,7 +21,7 @@ jobs:
         run: |
           uv venv --python 3.13
           uv pip install --no-deps -e .
-          uv pip install 'git+https://github.com/cddlab/rgi_toolkit.git@9f4f2068035074c5e2a9ae506f386ef26a05d3ee' \
+          uv pip install 'git+https://github.com/cddlab/rgi_toolkit.git@e382f6ec10ef15e0a4971c9c65d77e59546c1066' \
             'jax==0.10.2' jaxopt pytest ruff 'dm-haiku==0.0.17' \
             'tokamax==0.0.11' 'alphafold3-colabfold==3.1.11'
       - name: Prepare chemical definitions without model weights
