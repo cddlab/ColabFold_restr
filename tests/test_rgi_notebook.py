@@ -153,44 +153,99 @@ def test_notebooks_have_no_outputs_and_python_cells_compile():
 @pytest.mark.parametrize(
     "name", ["ColabFold2_preview.ipynb", "AlphaFold3_of3.ipynb", "Boltz1.ipynb"]
 )
-def test_notebook_form_requires_entries_before_prediction(name, raw):
-    pytest.importorskip("ipywidgets")
-    from rgi_toolkit.notebook_widgets import read_editor
+def test_native_form_runs_without_widgets_and_reads_every_edit(name, raw, monkeypatch):
+    import subprocess
+    import sys
 
+    from rgi_toolkit.notebook_colab import COLAB_FORM
+
+    monkeypatch.setattr(subprocess, "run", lambda *args, **kwargs: None)
+    monkeypatch.setenv("AF3_NB_OVERRIDES", "{}")
     root = Path(__file__).resolve().parents[1]
     cells = json.loads((root / name).read_text())["cells"]
     cell = next(c for c in cells if c.get("metadata", {}).get("id") == "rgi-restraints")
     source = "".join(cell["source"])
-    with pytest.raises(RuntimeError, match="preceding numbered"):
-        exec(source, {})
-    namespace = {
-        "use_rgi": True,
-        "fold_input": raw,
-        "fasta_entries": [(">A|protein|empty", "ACDEFG")],
-        "msa_mode": "single_sequence",
-    }
-    exec(source, namespace)
-    editor = namespace["rgi_editor"]
-    with pytest.raises(ValueError, match="No RGI restraints"):
-        read_editor(editor)
-    editor.add_buttons["distance"].click()
-    editor.cards[0].fields["target_distance"].value = 30
+    assert source.startswith(COLAB_FORM)
+    assert "notebook_widgets" not in json.dumps(cells)
+    assert sum("use_rgi = False #@param" in "".join(c["source"]) for c in cells) == 1
+    namespace = {"model": "boltz2", "sys": sys, "_toolkit_source": "installed-in-test"}
+    exec(
+        source, namespace
+    )  # The form has no install, input or running-widget prerequisite.
     prediction = next(
         "".join(c["source"])
         for c in cells
-        if "# Read live toolkit controls" in "".join(c["source"])
+        if "# Read the standard Colab fields" in "".join(c["source"])
     )
     prefix = prediction.split(
         "# Rebuild the input" if name != "Boltz1.ipynb" else "# Use YAML"
     )[0]
     exec(prefix, namespace)
+    assert namespace["rgi_config"] is None
+    namespace["use_rgi"] = True
+    with pytest.raises(ValueError, match="RGI is on but no restraints"):
+        exec(prefix, namespace)
+    namespace.update(
+        distance_atom_selection1="chain A and resid 1 to 2",
+        distance_atom_selection2='["chain A and resid 3", "chain A and resid 4"]',
+        target_distance=[25, 30],
+        conformer_chains="C",
+    )
+    exec(prefix, namespace)
+    config = namespace["rgi_config"]
+    assert len(config["distance_restraints_config"]) == 2
+    guided = prepare_input(
+        raw,
+        "boltz2",
+        use_rgi=True,
+        config=config,
+        conformer_chains=namespace["rgi_conformer_chains"],
+    )
+    assert guided["sequences"][-1]["ligand"]["conformer_restraints"] is True
+    namespace["target_distance"] = [15, 20]
+    exec(prefix, namespace)
     assert (
-        namespace["rgi_config"]["distance_restraints_config"][0]["harmonic"][
+        namespace["rgi_config"]["distance_restraints_config"][1]["harmonic"][
             "target_distance"
         ]
-        == 30
+        == 20
     )
-    namespace["use_rgi"] = False
-    editor.add("RMSD")  # An incomplete entry must not block vanilla.
+    namespace.update(use_rgi=False, restraints_config="invalid", ref_pdb="missing.pdb")
     exec(prefix, namespace)
     assert namespace["rgi_config"] is None
+    assert "restraints_config" not in prepare_input(guided, "boltz2", use_rgi=False)
+    if name != "Boltz1.ipynb":
+        namespace.update(use_rgi=True, model="af2_ptm")
+        with pytest.raises(ValueError, match="turn use_rgi off"):
+            exec(prefix, namespace)
+
+
+def test_preview_preserves_upstream_layout_and_default_model():
+    root = Path(__file__).resolve().parents[1]
+    cells = json.loads((root / "ColabFold2_preview.ipynb").read_text())["cells"]
+    original = [c for c in cells if c["metadata"]["id"] != "rgi-restraints"]
+    assert [c["metadata"]["id"] for c in original] == [
+        "view-in-github",
+        "header",
+        "install",
+        "input",
+        "run",
+        "display3d",
+        "plots",
+        "download",
+        "instructions",
+    ]
+    assert [
+        "".join(c["source"]).splitlines()[0]
+        for c in original
+        if c["cell_type"] == "code"
+    ] == [
+        "#@title Install dependencies (~35 s)",
+        "#@title Input sequences",
+        "#@title Run the model",
+        "#@title Display structures + PAE (py2Dmol)",
+        "#@title Quality metrics and plots",
+        "#@title Download results",
+    ]
+    assert 'model = "openbind0" #@param' in "".join(original[2]["source"])
+    assert "Where to configure RGI" not in "".join(original[1]["source"])
