@@ -148,3 +148,49 @@ def test_notebooks_have_no_outputs_and_python_cells_compile():
             if cell["cell_type"] == "code":
                 assert cell["outputs"] == []
                 compile("".join(cell["source"]), name, "exec")
+
+
+@pytest.mark.parametrize(
+    "name", ["ColabFold2_preview.ipynb", "AlphaFold3_of3.ipynb", "Boltz1.ipynb"]
+)
+def test_notebook_form_requires_entries_before_prediction(name, raw):
+    pytest.importorskip("ipywidgets")
+    from rgi_toolkit.notebook_widgets import read_editor
+
+    root = Path(__file__).resolve().parents[1]
+    cells = json.loads((root / name).read_text())["cells"]
+    cell = next(c for c in cells if c.get("metadata", {}).get("id") == "rgi-restraints")
+    source = "".join(cell["source"])
+    with pytest.raises(RuntimeError, match="preceding numbered"):
+        exec(source, {})
+    namespace = {
+        "use_rgi": True,
+        "fold_input": raw,
+        "fasta_entries": [(">A|protein|empty", "ACDEFG")],
+        "msa_mode": "single_sequence",
+    }
+    exec(source, namespace)
+    editor = namespace["rgi_editor"]
+    with pytest.raises(ValueError, match="No RGI restraints"):
+        read_editor(editor)
+    editor.add_buttons["distance"].click()
+    editor.cards[0].fields["target_distance"].value = 30
+    prediction = next(
+        "".join(c["source"])
+        for c in cells
+        if "# Read live toolkit controls" in "".join(c["source"])
+    )
+    prefix = prediction.split(
+        "# Rebuild the input" if name != "Boltz1.ipynb" else "# Use YAML"
+    )[0]
+    exec(prefix, namespace)
+    assert (
+        namespace["rgi_config"]["distance_restraints_config"][0]["harmonic"][
+            "target_distance"
+        ]
+        == 30
+    )
+    namespace["use_rgi"] = False
+    editor.add("RMSD")  # An incomplete entry must not block vanilla.
+    exec(prefix, namespace)
+    assert namespace["rgi_config"] is None
