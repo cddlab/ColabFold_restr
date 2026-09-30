@@ -1,12 +1,12 @@
 # RGI in the standard Colab form
 
-Open [ColabFold2 preview](https://colab.research.google.com/github/th2ch-g/ColabFold_restr/blob/rgi-integration/ColabFold2_preview.ipynb#scrollTo=rgi-section).
-Expand **RGI (optional)** after **Input sequences** to edit the standard Colab form.
-The section starts collapsed; its fields are editable before execution.
+Open [ColabFold2 preview](https://colab.research.google.com/github/th2ch-g/ColabFold_restr/blob/rgi-integration/ColabFold2_preview.ipynb#scrollTo=rgi-restraints).
+**RGI (optional)** is a standard Colab form cell after **Input sequences**.
+Its fields are visible and editable before execution.
 
 1. Choose an RGI-supported model such as **openbind0** in **Install dependencies**.
 2. Fill in **Input sequences**.
-3. Expand **RGI (optional)**, turn on **use_rgi** and enter the selections and targets.
+3. In **RGI (optional)**, turn on **use_rgi** and enter the selections and targets.
 4. Use **Runtime → Run all**.
 
 For a 25 Å distance, set `distance_atom_selection1` to `chain A and resid 1 to 10`,

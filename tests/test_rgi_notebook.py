@@ -230,12 +230,7 @@ def test_native_form_runs_without_widgets_and_reads_every_edit(
 def test_preview_preserves_upstream_layout_and_default_model():
     root = Path(__file__).resolve().parents[1]
     cells = json.loads((root / "ColabFold2_preview.ipynb").read_text())["cells"]
-    original = [
-        c
-        for c in cells
-        if c["metadata"]["id"]
-        not in {"rgi-section", "rgi-restraints", "prediction-section"}
-    ]
+    original = [c for c in cells if c["metadata"]["id"] != "rgi-restraints"]
     assert [c["metadata"]["id"] for c in original] == [
         "view-in-github",
         "header",
