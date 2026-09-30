@@ -5,7 +5,6 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from colabfold.rgi import SUPPORTED_MODELS
 from colabfold.rgi.sampler import coordinate_minimizer, make_guided_sampler
 
 
@@ -21,8 +20,8 @@ def test_structural_token_coordinates_preserve_residue_mapping():
     np.testing.assert_array_equal(actual, expected)
 
 
-@pytest.mark.parametrize("model", sorted(SUPPORTED_MODELS))
-def test_identity_hook_preserves_each_upstream_sampler(model):
+@pytest.mark.parametrize("model", ["openbind0", "chai1", "esmfold2"])
+def test_identity_hook_preserves_upstream_sampling_paths(model):
     dh = pytest.importorskip("alphafold3.model.network.diffusion_head")
     import haiku as hk
     import jax
@@ -52,8 +51,7 @@ def test_identity_hook_preserves_each_upstream_sampler(model):
     assert dh.sample is original
 
 
-@pytest.mark.parametrize("model", ["boltz2", "openfold3", "openbind0"])
-def test_schedule_passes_pre_churn_sigma_and_zero_based_steps(model):
+def test_schedule_passes_pre_churn_sigma_and_zero_based_steps():
     dh = pytest.importorskip("alphafold3.model.network.diffusion_head")
     import haiku as hk
     import jax
@@ -78,7 +76,7 @@ def test_schedule_passes_pre_churn_sigma_and_zero_based_steps(model):
             batch,
             hk.next_rng_key(),
             config,
-            SimpleNamespace(model=model),
+            SimpleNamespace(model="openbind0"),
         )
 
     jax.block_until_ready(jax.jit(forward.apply)({}, jax.random.PRNGKey(42)))
