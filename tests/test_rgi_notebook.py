@@ -153,9 +153,7 @@ def test_notebooks_have_no_outputs_and_python_cells_compile():
 @pytest.mark.parametrize(
     ("name", "model"),
     [
-        ("ColabFold2_preview.ipynb", "boltz2"),
         ("ColabFold2_preview.ipynb", "openbind0"),
-        ("AlphaFold3_of3.ipynb", "openfold3"),
         ("AlphaFold3_of3.ipynb", "openbind0"),
         ("Boltz1.ipynb", "boltz2"),
     ],

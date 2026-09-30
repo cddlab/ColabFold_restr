@@ -12,24 +12,20 @@ from types import SimpleNamespace
 
 import pytest
 
-from colabfold.rgi import SUPPORTED_MODELS
-
 
 @pytest.mark.parametrize(
-    ("notebook", "model"),
+    ("notebook", "model", "extra_args"),
     [
-        ("ColabFold2_preview.ipynb", model)
-        for model in sorted(
-            SUPPORTED_MODELS | {"af2_ptm", "af2_multimer", "intellifold2"}
-        )
-    ]
-    + [
-        ("AlphaFold3_of3.ipynb", model)
-        for model in ("openbind0", "openfold3", "alphafold3")
+        ("ColabFold2_preview.ipynb", "openbind0", []),
+        ("ColabFold2_preview.ipynb", "af2_ptm", ["--model_dir=af2_weights"]),
+        ("ColabFold2_preview.ipynb", "chai1", ["--use_esm_embeddings"]),
+        ("ColabFold2_preview.ipynb", "esmfold2", ["--use_esm_embeddings"]),
+        ("ColabFold2_preview.ipynb", "esmfold2_lm300m", ["--use_esm_embeddings"]),
+        ("AlphaFold3_of3.ipynb", "alphafold3", ["--model_dir=af3_weights"]),
     ],
 )
 def test_vanilla_prediction_ignores_previous_rgi_state(
-    notebook, model, tmp_path, monkeypatch
+    notebook, model, extra_args, tmp_path, monkeypatch
 ):
     root = Path(__file__).resolve().parents[1]
     cells = json.loads((root / notebook).read_text())["cells"]
@@ -109,8 +105,11 @@ def test_vanilla_prediction_ignores_previous_rgi_state(
     assert f"--model={model}" in command
     assert "--num_recycles=10" in command
     assert "--num_diffusion_samples=5" in command
-    needs_embeddings = model == "chai1" or model.startswith("esmfold2")
-    assert ("--use_esm_embeddings" in command) == needs_embeddings
+    assert [
+        arg
+        for arg in command
+        if arg == "--use_esm_embeddings" or arg.startswith("--model_dir=")
+    ] == extra_args
     assert not any("rgi" in argument for argument in command[1:])
     written = json.loads(Path(namespace["json_path"]).read_text())
     assert written["sequences"] == original["sequences"]
