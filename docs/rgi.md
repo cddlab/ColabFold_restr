@@ -23,5 +23,11 @@ while retaining its own model configuration and checkpoint. It is available in
 both ColabFold2 preview and AlphaFold3 / OpenFold3.
 
 Leave **use_rgi** off for vanilla. AF2 and IntelliFold2 are vanilla only.
+Vanilla runs use the upstream predictor without the RGI wrapper or RGI dependency.
+Any restraint configuration and chain opt-ins left from an earlier run are removed.
+The notebooks retain their default models and sampling settings.
+The first ESMFold2 6B run prepares the upstream memory-mapped weight cache
+incrementally to fit standard Colab RAM; later runs reuse it. This applies to both
+vanilla and RGI predictions and preserves the upstream weights and inference code.
 After edits, rerun the RGI cell and prediction, or use **Run all**. In Boltz-1 the form
 precedes installation; rerun installation too when changing **use_rgi**.
