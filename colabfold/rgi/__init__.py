@@ -3,6 +3,7 @@
 SUPPORTED_MODELS = frozenset(
     {
         "alphafold3",
+        "openbind0",
         "openfold3",
         "boltz2",
         "protenix2",

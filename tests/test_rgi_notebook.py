@@ -48,7 +48,7 @@ def test_every_supported_model_accepts_optional_rgi(raw):
 
 
 def test_unsupported_models_keep_vanilla(raw):
-    for model in ("af2_ptm", "af2_multimer", "openbind0", "intellifold2", "unknown"):
+    for model in ("af2_ptm", "af2_multimer", "intellifold2", "unknown"):
         prepare_input(raw, model)
         with pytest.raises(ValueError, match="turn use_rgi off"):
             require_supported_model(model)
@@ -151,9 +151,18 @@ def test_notebooks_have_no_outputs_and_python_cells_compile():
 
 
 @pytest.mark.parametrize(
-    "name", ["ColabFold2_preview.ipynb", "AlphaFold3_of3.ipynb", "Boltz1.ipynb"]
+    ("name", "model"),
+    [
+        ("ColabFold2_preview.ipynb", "boltz2"),
+        ("ColabFold2_preview.ipynb", "openbind0"),
+        ("AlphaFold3_of3.ipynb", "openfold3"),
+        ("AlphaFold3_of3.ipynb", "openbind0"),
+        ("Boltz1.ipynb", "boltz2"),
+    ],
 )
-def test_native_form_runs_without_widgets_and_reads_every_edit(name, raw, monkeypatch):
+def test_native_form_runs_without_widgets_and_reads_every_edit(
+    name, model, raw, monkeypatch
+):
     import subprocess
     import sys
 
@@ -168,7 +177,7 @@ def test_native_form_runs_without_widgets_and_reads_every_edit(name, raw, monkey
     assert source.startswith(COLAB_FORM)
     assert "notebook_widgets" not in json.dumps(cells)
     assert sum("use_rgi = False #@param" in "".join(c["source"]) for c in cells) == 1
-    namespace = {"model": "boltz2", "sys": sys, "_toolkit_source": "installed-in-test"}
+    namespace = {"model": model, "sys": sys, "_toolkit_source": "installed-in-test"}
     exec(
         source, namespace
     )  # The form has no install, input or running-widget prerequisite.
@@ -196,7 +205,7 @@ def test_native_form_runs_without_widgets_and_reads_every_edit(name, raw, monkey
     assert len(config["distance_restraints_config"]) == 2
     guided = prepare_input(
         raw,
-        "boltz2",
+        model,
         use_rgi=True,
         config=config,
         conformer_chains=namespace["rgi_conformer_chains"],
@@ -213,7 +222,7 @@ def test_native_form_runs_without_widgets_and_reads_every_edit(name, raw, monkey
     namespace.update(use_rgi=False, restraints_config="invalid", ref_pdb="missing.pdb")
     exec(prefix, namespace)
     assert namespace["rgi_config"] is None
-    assert "restraints_config" not in prepare_input(guided, "boltz2", use_rgi=False)
+    assert "restraints_config" not in prepare_input(guided, model, use_rgi=False)
     if name != "Boltz1.ipynb":
         namespace.update(use_rgi=True, model="af2_ptm")
         with pytest.raises(ValueError, match="turn use_rgi off"):
@@ -223,7 +232,12 @@ def test_native_form_runs_without_widgets_and_reads_every_edit(name, raw, monkey
 def test_preview_preserves_upstream_layout_and_default_model():
     root = Path(__file__).resolve().parents[1]
     cells = json.loads((root / "ColabFold2_preview.ipynb").read_text())["cells"]
-    original = [c for c in cells if c["metadata"]["id"] != "rgi-restraints"]
+    original = [
+        c
+        for c in cells
+        if c["metadata"]["id"]
+        not in {"rgi-section", "rgi-restraints", "prediction-section"}
+    ]
     assert [c["metadata"]["id"] for c in original] == [
         "view-in-github",
         "header",
