@@ -52,7 +52,8 @@ def test_identity_hook_preserves_each_upstream_sampler(model):
     assert dh.sample is original
 
 
-def test_schedule_passes_pre_churn_sigma_and_zero_based_steps():
+@pytest.mark.parametrize("model", ["boltz2", "openfold3", "openbind0"])
+def test_schedule_passes_pre_churn_sigma_and_zero_based_steps(model):
     dh = pytest.importorskip("alphafold3.model.network.diffusion_head")
     import haiku as hk
     import jax
@@ -77,7 +78,7 @@ def test_schedule_passes_pre_churn_sigma_and_zero_based_steps():
             batch,
             hk.next_rng_key(),
             config,
-            SimpleNamespace(model="boltz2"),
+            SimpleNamespace(model=model),
         )
 
     jax.block_until_ready(jax.jit(forward.apply)({}, jax.random.PRNGKey(42)))
