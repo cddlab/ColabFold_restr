@@ -131,7 +131,12 @@ def test_vanilla_prediction_ignores_previous_rgi_state(
     assert prepared == ([model] if model == "esmfold2" else [])
 
 
-def test_native_boltz_vanilla_run_all_switches_back_to_upstream(tmp_path, monkeypatch):
+@pytest.mark.parametrize(
+    ("rgi_cached", "produce_structure"), [(False, True), (True, True), (True, False)]
+)
+def test_native_boltz_vanilla_run_all_switches_back_to_upstream(
+    rgi_cached, produce_structure, tmp_path, monkeypatch
+):
     yaml = pytest.importorskip(
         "yaml", reason="The native Boltz notebook requires PyYAML."
     )
@@ -142,6 +147,15 @@ def test_native_boltz_vanilla_run_all_switches_back_to_upstream(tmp_path, monkey
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(shutil, "which", lambda name: name)
     Path("test").mkdir()
+    Path("test/query.a3m").write_text(">A\nACDEFGHIK\n")
+    stale_output = Path("test/boltz_results_test")
+    (stale_output / "processed").mkdir(parents=True)
+    (stale_output / "processed/manifest.json").write_text("{}")
+    stale_predictions = stale_output / "predictions/test"
+    stale_predictions.mkdir(parents=True)
+    (stale_predictions / "stale.cif").touch()
+    if rgi_cached:
+        (stale_output / ".rgi-enabled").touch()
     namespace = {
         "os": os,
         "use_rgi": False,
@@ -157,9 +171,16 @@ def test_native_boltz_vanilla_run_all_switches_back_to_upstream(tmp_path, monkey
     def run(command, **kwargs):
         commands.append(command)
         if "predict" in command:
-            output = Path("test/boltz_results_test/predictions/test")
-            output.mkdir(parents=True)
-            (output / "result.cif").touch()
+            if rgi_cached:
+                assert not stale_output.exists()
+            else:
+                assert (stale_output / "processed/manifest.json").is_file()
+                assert (stale_predictions / "stale.cif").is_file()
+            assert Path("test/query.a3m").read_text() == ">A\nACDEFGHIK\n"
+            if produce_structure:
+                output = stale_output / "predictions/test"
+                output.mkdir(parents=True, exist_ok=True)
+                (output / "result.cif").touch()
         return SimpleNamespace(returncode=0)
 
     real_import = builtins.__import__
@@ -172,7 +193,12 @@ def test_native_boltz_vanilla_run_all_switches_back_to_upstream(tmp_path, monkey
     monkeypatch.setattr(subprocess, "run", run)
     monkeypatch.setattr(builtins, "__import__", without_rgi_toolkit)
     exec(sources["4eXNO1JJHYrB"], namespace)
-    exec(sources["bgaBXxXtIAu9"], namespace)
+    if produce_structure:
+        exec(sources["bgaBXxXtIAu9"], namespace)
+    else:
+        with pytest.raises(RuntimeError, match="Prediction produced no structure files"):
+            exec(sources["bgaBXxXtIAu9"], namespace)
+    assert not (stale_output / ".rgi-enabled").exists()
 
     assert any(command[-1] == "boltz==2.2.1" for command in commands)
     assert not any(
@@ -196,3 +222,58 @@ def test_native_boltz_vanilla_run_all_switches_back_to_upstream(tmp_path, monkey
         "conformer_restraints" not in next(iter(entity.values()))
         for entity in written["sequences"]
     )
+
+
+def test_native_boltz_rgi_reprocesses_when_target_changes(tmp_path, monkeypatch):
+    pytest.importorskip("yaml", reason="The native Boltz notebook requires PyYAML.")
+    root = Path(__file__).resolve().parents[1]
+    cells = json.loads((root / "Boltz1.ipynb").read_text())["cells"]
+    source = next(
+        "".join(cell["source"])
+        for cell in cells
+        if cell["metadata"]["id"] == "bgaBXxXtIAu9"
+    )
+    monkeypatch.chdir(tmp_path)
+    output = Path("test/boltz_results_test")
+    (output / "processed").mkdir(parents=True)
+    (output / "processed/manifest.json").write_text("{}")
+    namespace = {
+        "Path": Path,
+        "subprocess": subprocess,
+        "use_rgi": True,
+        "boltz_python": "boltz-rgi-python",
+        "fasta_entries": [(">A|protein", "ACDEFGHIK")],
+        "msa_mode": "single_sequence",
+        "jobname": "test",
+    }
+
+    def config_from_fields(fields):
+        return {"target_distance": fields["target_distance"]}, ""
+
+    monkeypatch.setitem(
+        sys.modules,
+        "rgi_toolkit.notebook_colab",
+        SimpleNamespace(config_from_fields=config_from_fields),
+    )
+    monkeypatch.setattr(
+        "colabfold.rgi.boltz.notebook_input",
+        lambda entries, *, config, **kwargs: {"restraints_config": config},
+    )
+    targets = []
+
+    def run(command, **kwargs):
+        assert (output / ".rgi-enabled").is_file()
+        assert not (output / "processed").exists()
+        targets.append(namespace["rgi_config"]["target_distance"])
+        (output / "processed").mkdir()
+        (output / "processed/manifest.json").write_text("{}")
+        prediction = output / "predictions/test"
+        prediction.mkdir(parents=True)
+        (prediction / "result.cif").touch()
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(subprocess, "run", run)
+    for target in (25, 35):
+        namespace["target_distance"] = target
+        exec(source, namespace)
+    assert targets == [25, 35]
