@@ -18,20 +18,11 @@ from pathlib import Path
 
 
 def prepare_runtime(work):
-    import tokamax
     from alphafold3.constants import ccd_fetch
 
-    gpu_utils = Path(tokamax.__file__).parent / "_src/gpu_utils.py"
-    source = gpu_utils.read_text()
-    old = "return float(device.compute_capability) >= 8.0"
-    if old in source:
-        gpu_utils.write_text(
-            source.replace(
-                old,
-                "cc = float(device.compute_capability)\n"
-                "  return cc == 8.0 or cc >= 9.0",
-            )
-        )
+    from colabfold.tokamax_compat import patch_gpu_support
+
+    patch_gpu_support()
 
     runner = work / "run_alphafold.py"
     if not runner.exists():

@@ -25,13 +25,14 @@ def run(args):
             if arm == "vanilla"
             else make_config(
                 {
+                    "verbose": True,
                     "distance_restraints_config": [
                         {
                             "atom_selection1": "chain A",
                             "atom_selection2": "chain B",
                             "harmonic": {"target_distance": 25},
                         }
-                    ]
+                    ],
                 }
             )
         )
