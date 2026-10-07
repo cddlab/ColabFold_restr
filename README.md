@@ -1,14 +1,5 @@
 # ColabFold - v1.6.3
 
-**This branch adds optional RGI to the supported diffusion predictors.**
-Open [ColabFold2 with RGI](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/ColabFold2_preview.ipynb)
-and follow the [beginner guide](docs/rgi.md). Enable `use_rgi` for guided prediction,
-or leave it off for vanilla. [AlphaFold3 / OpenFold3](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/AlphaFold3_of3.ipynb)
-and [Boltz-1](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/Boltz1.ipynb)
-also provide standard Colab forms for distance, conformer, angle, custom and RMSD.
-Fill **RGI (optional)** before **Run all**; the fields are visible before execution.
-Multiple entries, native selections and full toolkit configuration are supported.
-
 For details of what was changed in v1.6.3, see [change log](https://github.com/sokrypton/ColabFold/wiki/v1.6.3)!
 
 <p align="center"><img src="https://github.com/sokrypton/ColabFold/raw/main/.github/ColabFold_Marv_Logo.png" height="250"/></p>
