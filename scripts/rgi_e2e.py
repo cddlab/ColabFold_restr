@@ -20,10 +20,6 @@ from pathlib import Path
 def prepare_runtime(work):
     from alphafold3.constants import ccd_fetch
 
-    from colabfold.tokamax_compat import patch_gpu_support
-
-    patch_gpu_support()
-
     runner = work / "run_alphafold.py"
     if not runner.exists():
         urllib.request.urlretrieve(

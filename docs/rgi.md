@@ -1,12 +1,13 @@
 # RGI in the standard Colab form
 
 Open [ColabFold2 preview](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/ColabFold2_preview.ipynb#scrollTo=rgi-restraints).
-**RGI (optional)** is a standard Colab form cell after **Input sequences**.
+**RGI: Making restraint-guided protein folding inference accessible to all! (optional)**
+is a standard Colab form cell after **Input sequences**.
 Its fields are visible and editable before execution.
 
 1. Choose an RGI-supported model such as **openbind0** in **Install dependencies**.
 2. Fill in **Input sequences**.
-3. In **RGI (optional)**, turn on **use_rgi** and enter the selections and targets.
+3. In the **RGI** form, turn on **use_rgi** and enter the selections and targets.
 4. Use **Runtime → Run all**.
 
 For a 25 Å distance, set `distance_atom_selection1` to `chain A and resid 1 to 10`,
@@ -26,9 +27,6 @@ Leave **use_rgi** off for vanilla. AF2 and IntelliFold2 are vanilla only.
 Vanilla runs use the upstream predictor without the RGI wrapper or RGI dependency.
 Any restraint configuration and chain opt-ins left from an earlier run are removed.
 The notebooks retain their default models and sampling settings.
-The first ESMFold2 6B run prepares the upstream memory-mapped weight cache
-incrementally to fit standard Colab RAM; later runs reuse it. This applies to both
-vanilla and RGI predictions and preserves the upstream weights and inference code.
 After edits, rerun the RGI cell and prediction, or use **Run all**. In Boltz-1 the form
 precedes installation; rerun installation too when changing **use_rgi**.
 RGI results include the RGI-Toolkit paper in `cite.bibtex`, which is also included

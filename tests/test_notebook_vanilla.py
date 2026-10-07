@@ -14,17 +14,6 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    ("capability", "attention"),
-    [
-        (7.5, "xla"),
-        (8.0, "triton"),
-        (8.9, "xla"),
-        (9.0, "triton"),
-        (10.0, "triton"),
-        (12.0, "xla"),
-    ],
-)
-@pytest.mark.parametrize(
     ("notebook", "model", "extra_args"),
     [
         ("ColabFold2_preview.ipynb", "openbind0", []),
@@ -36,7 +25,7 @@ import pytest
     ],
 )
 def test_vanilla_prediction_ignores_previous_rgi_state(
-    notebook, model, extra_args, capability, attention, tmp_path, monkeypatch
+    notebook, model, extra_args, tmp_path, monkeypatch
 ):
     root = Path(__file__).resolve().parents[1]
     cells = json.loads((root / notebook).read_text())["cells"]
@@ -84,12 +73,10 @@ def test_vanilla_prediction_ignores_previous_rgi_state(
         "ref_pdb": "missing.pdb",
     }
     commands = []
-    prepared = []
-    monkeypatch.setattr("colabfold.esm_cache.prepare_esm_cache", prepared.append)
 
     def run(command, **kwargs):
         assert command[0] == "nvidia-smi", command
-        return SimpleNamespace(stdout=f"{capability}\n", returncode=0)
+        return SimpleNamespace(stdout="7.5\n", returncode=0)
 
     def popen(command, **kwargs):
         commands.append(command)
@@ -116,7 +103,6 @@ def test_vanilla_prediction_ignores_previous_rgi_state(
     assert f"--model={model}" in command
     assert "--num_recycles=10" in command
     assert "--num_diffusion_samples=5" in command
-    assert f"--flash_attention_implementation={attention}" in command
     assert [
         arg
         for arg in command
@@ -128,7 +114,6 @@ def test_vanilla_prediction_ignores_previous_rgi_state(
     assert written["modelSeeds"] == original["modelSeeds"]
     assert "restraints_config" not in written
     assert namespace["rgi_config"] is None
-    assert prepared == ([model] if model == "esmfold2" else [])
     assert not (Path(namespace["job_dir"]) / "cite.bibtex").exists()
 
 
