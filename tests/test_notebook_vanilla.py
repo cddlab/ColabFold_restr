@@ -129,6 +129,7 @@ def test_vanilla_prediction_ignores_previous_rgi_state(
     assert "restraints_config" not in written
     assert namespace["rgi_config"] is None
     assert prepared == ([model] if model == "esmfold2" else [])
+    assert not (Path(namespace["job_dir"]) / "cite.bibtex").exists()
 
 
 @pytest.mark.parametrize(
@@ -156,6 +157,7 @@ def test_native_boltz_vanilla_run_all_switches_back_to_upstream(
     (stale_predictions / "stale.cif").touch()
     if rgi_cached:
         (stale_output / ".rgi-enabled").touch()
+        (stale_output / "cite.bibtex").write_text("@article{hori2026rgi}\n")
     namespace = {
         "os": os,
         "use_rgi": False,
@@ -196,9 +198,12 @@ def test_native_boltz_vanilla_run_all_switches_back_to_upstream(
     if produce_structure:
         exec(sources["bgaBXxXtIAu9"], namespace)
     else:
-        with pytest.raises(RuntimeError, match="Prediction produced no structure files"):
+        with pytest.raises(
+            RuntimeError, match="Prediction produced no structure files"
+        ):
             exec(sources["bgaBXxXtIAu9"], namespace)
     assert not (stale_output / ".rgi-enabled").exists()
+    assert not (stale_output / "cite.bibtex").exists()
 
     assert any(command[-1] == "boltz==2.2.1" for command in commands)
     assert not any(
@@ -276,4 +281,6 @@ def test_native_boltz_rgi_reprocesses_when_target_changes(tmp_path, monkeypatch)
     for target in (25, 35):
         namespace["target_distance"] = target
         exec(source, namespace)
+        bibliography = (output / "cite.bibtex").read_text()
+        assert bibliography.count("@article{hori2026rgi,") == 1
     assert targets == [25, 35]

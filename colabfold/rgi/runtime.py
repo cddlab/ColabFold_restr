@@ -9,6 +9,7 @@ import json
 from contextlib import contextmanager
 from pathlib import Path
 
+from colabfold.citations import write_rgi_citation
 from colabfold.rgi import ALPHAFOLD3_COLABFOLD_VERSION, require_supported_model
 
 
@@ -265,6 +266,7 @@ def install(runner):
         if report is not None:
             path = Path(bound.arguments["output_dir"]) / "rgi_report.json"
             path.write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
+            write_rgi_citation(path.parent)
 
     input_class.from_json = parse
     runner.predict_structure = predict

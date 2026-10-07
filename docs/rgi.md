@@ -31,3 +31,6 @@ incrementally to fit standard Colab RAM; later runs reuse it. This applies to bo
 vanilla and RGI predictions and preserves the upstream weights and inference code.
 After edits, rerun the RGI cell and prediction, or use **Run all**. In Boltz-1 the form
 precedes installation; rerun installation too when changing **use_rgi**.
+RGI results include the RGI-Toolkit paper in `cite.bibtex`, which is also included
+in the downloaded results ZIP. Existing citations are preserved without duplicating
+the RGI entry on reruns.
