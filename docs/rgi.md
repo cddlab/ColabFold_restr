@@ -1,6 +1,6 @@
 # RGI in the standard Colab form
 
-Open [ColabFold2 preview](https://colab.research.google.com/github/th2ch-g/ColabFold_restr/blob/rgi-integration/ColabFold2_preview.ipynb#scrollTo=rgi-restraints).
+Open [ColabFold2 preview](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/ColabFold2_preview.ipynb#scrollTo=rgi-restraints).
 **RGI (optional)** is a standard Colab form cell after **Input sequences**.
 Its fields are visible and editable before execution.
 
