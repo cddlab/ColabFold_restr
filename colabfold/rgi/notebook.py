@@ -90,5 +90,6 @@ def name_job(fold_input, model, *, base, num_recycles, num_diffusion_samples):
         :10
     ]
     base = re.sub(r"\W+", "", base).lower() or "job"
-    mode = "rgi" if "restraints_config" in fold_input else "vanilla"
-    return f"{base}_{model}_{mode}_{digest}"
+    if "restraints_config" in fold_input:
+        return f"{base}_{model}_rgi_{digest}"
+    return f"{base}_{model}_{digest}"

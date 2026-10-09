@@ -3,6 +3,7 @@
 import copy
 import importlib.util
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -88,6 +89,18 @@ def test_result_names_change_with_effective_settings(raw):
     changed = copy.deepcopy(raw)
     changed["restraints_config"] = {"conformer_restraints_config": {}}
     assert len({name(), name(changed), name(model="openfold3"), name(recycles=2)}) == 4
+
+
+def test_result_names_mark_only_rgi_runs(raw):
+    def name(data):
+        return name_job(
+            data, "boltz2", base="demo", num_recycles=1, num_diffusion_samples=1
+        )
+
+    guided = copy.deepcopy(raw)
+    guided["restraints_config"] = {"conformer_restraints_config": {}}
+    assert re.fullmatch(r"demo_boltz2_[0-9a-f]{10}", name(raw))
+    assert re.fullmatch(r"demo_boltz2_rgi_[0-9a-f]{10}", name(guided))
 
 
 def test_parser_removes_only_rgi_extensions_and_keeps_flags_separate(raw):
