@@ -92,8 +92,7 @@ def test_runtime_output_citation_is_scoped_to_guided_jobs(tmp_path, monkeypatch)
 @pytest.mark.parametrize(
     ("notebook", "download_id", "output_dir"),
     [
-        # The ColabFold2 download cell hard-codes OUTPUT_DIR = "af3_output".
-        ("ColabFold2_preview.ipynb", "download", "af3_output/test"),
+        ("ColabFold2_preview.ipynb", "download", "outputs/test"),
         ("AlphaFold3_of3.ipynb", "download", "outputs/test"),
         ("Boltz1.ipynb", "jdSBSTOpaULF", "test/boltz_results_test"),
     ],
