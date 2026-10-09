@@ -90,15 +90,16 @@ def test_runtime_output_citation_is_scoped_to_guided_jobs(tmp_path, monkeypatch)
 
 
 @pytest.mark.parametrize(
-    ("notebook", "download_id"),
+    ("notebook", "download_id", "output_dir"),
     [
-        ("ColabFold2_preview.ipynb", "download"),
-        ("AlphaFold3_of3.ipynb", "download"),
-        ("Boltz1.ipynb", "jdSBSTOpaULF"),
+        # The ColabFold2 download cell hard-codes OUTPUT_DIR = "af3_output".
+        ("ColabFold2_preview.ipynb", "download", "af3_output/test"),
+        ("AlphaFold3_of3.ipynb", "download", "outputs/test"),
+        ("Boltz1.ipynb", "jdSBSTOpaULF", "test/boltz_results_test"),
     ],
 )
 def test_downloaded_results_include_rgi_citation(
-    notebook, download_id, tmp_path, monkeypatch
+    notebook, download_id, output_dir, tmp_path, monkeypatch
 ):
     if notebook != "Boltz1.ipynb" and shutil.which("zip") is None:
         pytest.skip("The AF3 notebook download cell requires zip.")
@@ -110,9 +111,7 @@ def test_downloaded_results_include_rgi_citation(
         if cell["metadata"]["id"] == download_id
     )
     monkeypatch.chdir(tmp_path)
-    output = Path(
-        "test/boltz_results_test" if notebook == "Boltz1.ipynb" else "outputs/test"
-    )
+    output = Path(output_dir)
     output.mkdir(parents=True)
     citation = write_rgi_citation(output).read_bytes()
     input_yaml = tmp_path / "test.yaml"
