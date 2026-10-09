@@ -174,7 +174,7 @@ def write_rgi_citation(result_dir: str | Path) -> Path:
     """Append the RGI paper once, preserving existing output citations."""
     bibtex_file = Path(result_dir) / "cite.bibtex"
     existing = bibtex_file.read_text(encoding="utf-8") if bibtex_file.exists() else ""
-    if not re.search(r"@article\s*\{\s*hori2026rgi\s*,", existing, re.IGNORECASE):
+    if not re.search(r"@\w+\s*\{\s*hori2026rgi\s*,", existing, re.IGNORECASE):
         with bibtex_file.open("a", encoding="utf-8") as writer:
             if existing and not existing.endswith("\n"):
                 writer.write("\n")
